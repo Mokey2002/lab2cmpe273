@@ -3,8 +3,8 @@ import '../../App.css';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
-const jwt_decode = require('jwt-decode');
-
+//const jwt_decode = require('jwt-decode');
+import jwt_decode from 'jwt-decode';
 //Define a Login Component
 class Login extends Component{
     //call the constructor method
@@ -61,6 +61,7 @@ class Login extends Component{
                 console.log("Status Code : ",response.status);
                 if(response.status === 200){
                     this.setState({
+                        token: response.data,
                         authFlag : true
                     })
                 }else{
@@ -76,9 +77,18 @@ class Login extends Component{
         let wrongcredentials;
         let {authFlag} = this.state;
         let redirectVar = null;
-        if(cookie.load('cookie')){
-
-            redirectVar = <Redirect to= "/home"/>
+        if(this.state.token.length > 0){
+            console.log("deocdign")
+            console.log(this.state.token)
+            document.cookie = "token" +'='+ this.state.token +'; Path=/;';
+            localStorage.setItem("token", this.state.token);
+            var decoded = jwt_decode(this.state.token.split(' ')[1]);
+            localStorage.setItem("user_id", decoded._id);
+            //localStorage.setItem("username", decoded.username);
+            console.log(decoded)
+            console.log(decoded._id)
+            redirectVar = <Redirect to="/home" />
+          
         }
         if(!authFlag){
             wrongcredentials =<div class="alert alert-danger" role="alert">

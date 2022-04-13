@@ -129,10 +129,13 @@ class Home extends Component {
 
 
     componentDidMount(){
+        console.log("TOKENNNNN");
+        console.log(cookie.load('token'));
+        console.log("TOKENNNNN");
         const data={
             username: cookie.load('cookie'),
-
         }
+        axios.defaults.headers.common['authorization'] =cookie.load('token');
         axios.post('http://localhost:3001/getallshop',data)
                 .then((response) => {
 

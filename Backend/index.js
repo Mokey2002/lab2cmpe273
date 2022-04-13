@@ -9,8 +9,11 @@ app.set('view engine', 'ejs');
 const mysql = require('mysql2');
 const multer = require("multer");
 const jwt = require('jsonwebtoken');
-
+const { checkAuth } = require("./Utils/passport");
+const { auth } = require("./Utils/passport");
+auth();
 //setting up secret key
+
 const secretkey = "cmpe273_secret_key";
 
 
@@ -178,10 +181,7 @@ app.post('/login',function(req,res){
         "SELECT name From user  where User =? and password =?",
         [req.body.username, req.body.password],
         (err, result) => {
-            console.log("result");
-            console.log(result);
-            console.log(err);
-            console.log("result");
+    
 
         if(err) {
             res.send({err: err})
@@ -189,15 +189,19 @@ app.post('/login',function(req,res){
         if (result.length > 0 ){
             res.cookie('cookie',req.body.username,{maxAge: 900000, httpOnly: false, path : '/'});
             req.session.user ={ username: req.body.user, password: req.body.password };
-            const payload = { _id: req.body.user};
+            const payload = { _id: req.body.username};
             const token = jwt.sign(payload, secretkey, {
                 expiresIn: 1008000
             });
+            console.log("payload inside loign");
+            console.log(payload)
+            console.log("payload inside loign");
+           
             //return succes to front end
             res.writeHead(200,{
                 'Content-Type' : 'text/plain'
             })
-            res.end("JWT "+token);
+            res.end("JWT " +token);
         }
         else{
             //return unsuccesful to front end
@@ -423,8 +427,9 @@ app.post('/check', function (req, res) {
 });
 
 //get all items for landing
-app.post('/getallshop', function (req, res) {
+app.post('/getallshop', checkAuth, function (req, res) {
     console.log("get all for landing")
+    console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
     db.query(
         "SELECT * From shop where itemname is not  NULL",
         [],
