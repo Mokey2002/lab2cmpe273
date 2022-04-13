@@ -8,6 +8,12 @@ var cors = require('cors');
 app.set('view engine', 'ejs');
 const mysql = require('mysql2');
 const multer = require("multer");
+const jwt = require('jsonwebtoken');
+
+//setting up secret key
+const secretkey = "cmpe273_secret_key";
+
+
 // uploads
 const storage = multer.diskStorage({
     destination:(req,file,cb) =>{
@@ -183,11 +189,15 @@ app.post('/login',function(req,res){
         if (result.length > 0 ){
             res.cookie('cookie',req.body.username,{maxAge: 900000, httpOnly: false, path : '/'});
             req.session.user ={ username: req.body.user, password: req.body.password };
+            const payload = { _id: req.body.user};
+            const token = jwt.sign(payload, secretkey, {
+                expiresIn: 1008000
+            });
             //return succes to front end
             res.writeHead(200,{
                 'Content-Type' : 'text/plain'
             })
-            res.end("Successful Login");
+            res.end("JWT "+token);
         }
         else{
             //return unsuccesful to front end

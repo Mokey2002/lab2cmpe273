@@ -3,6 +3,7 @@ import '../../App.css';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
+const jwt_decode = require('jwt-decode');
 
 //Define a Login Component
 class Login extends Component{
@@ -14,6 +15,7 @@ class Login extends Component{
         this.state = {
             username : "",
             password : "",
+            token:"",
             authFlag : true
         }
         //Bind the handlers to this class
@@ -53,6 +55,9 @@ class Login extends Component{
         //make a post request with the user data
         axios.post('http://localhost:3001/login',data)
             .then(response => {
+                console.log("REsponse login")
+                console.log(response.data)
+                console.log("REsponse login")
                 console.log("Status Code : ",response.status);
                 if(response.status === 200){
                     this.setState({
@@ -72,6 +77,7 @@ class Login extends Component{
         let {authFlag} = this.state;
         let redirectVar = null;
         if(cookie.load('cookie')){
+
             redirectVar = <Redirect to= "/home"/>
         }
         if(!authFlag){
